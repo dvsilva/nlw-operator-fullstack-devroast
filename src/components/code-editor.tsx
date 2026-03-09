@@ -6,6 +6,8 @@ import { twMerge } from "tailwind-merge";
 import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter";
 import { LANGUAGE_OPTIONS, LANGUAGES } from "@/lib/languages";
 
+const MAX_CHARACTERS = 2000;
+
 type CodeEditorProps = {
   value: string;
   onChange: (value: string) => void;
@@ -29,6 +31,9 @@ function CodeEditor({
     ? (LANGUAGES[language]?.name ?? language)
     : null;
 
+  const charCount = value.length;
+  const isOverLimit = charCount > MAX_CHARACTERS;
+
   const lines = value.split("\n");
   const lineCount = Math.max(lines.length, 16);
 
@@ -43,14 +48,22 @@ function CodeEditor({
   // Show text visibly when highlight is not ready yet
   const hasHighlight = isReady && highlightedHtml.length > 0;
 
-  // Scroll sync
+  const lineNumbersRef = useRef<HTMLDivElement>(null);
+
+  // Scroll sync: textarea -> highlighted overlay + line numbers
   const handleScroll = useCallback(() => {
     const textarea = textareaRef.current;
     const highlighted = highlightedRef.current;
-    if (!textarea || !highlighted) return;
+    const lineNumbers = lineNumbersRef.current;
+    if (!textarea) return;
 
-    highlighted.scrollTop = textarea.scrollTop;
-    highlighted.scrollLeft = textarea.scrollLeft;
+    if (highlighted) {
+      highlighted.scrollTop = textarea.scrollTop;
+      highlighted.scrollLeft = textarea.scrollLeft;
+    }
+    if (lineNumbers) {
+      lineNumbers.scrollTop = textarea.scrollTop;
+    }
   }, []);
 
   return (
@@ -97,9 +110,12 @@ function CodeEditor({
       </div>
 
       {/* Code Area */}
-      <div className="flex flex-1 bg-bg-input">
+      <div className="flex flex-1 bg-bg-input max-h-96 overflow-hidden">
         {/* Line Numbers */}
-        <div className="flex flex-col items-end gap-0 py-4 px-3 w-12 border-r border-border-primary bg-bg-surface select-none">
+        <div
+          ref={lineNumbersRef}
+          className="flex flex-col items-end gap-0 py-4 px-3 w-12 border-r border-border-primary bg-bg-surface select-none overflow-hidden"
+        >
           {Array.from({ length: lineCount }, (_, i) => (
             <span
               // biome-ignore lint/suspicious/noArrayIndexKey: line numbers are index-based and never reorder
@@ -146,8 +162,20 @@ function CodeEditor({
           />
         </div>
       </div>
+
+      {/* Footer */}
+      <div className="flex items-center justify-end h-8 px-4 border-t border-border-primary">
+        <span
+          className={twMerge(
+            "font-mono text-[10px] tabular-nums",
+            isOverLimit ? "text-accent-red" : "text-text-tertiary",
+          )}
+        >
+          {charCount.toLocaleString()}/{MAX_CHARACTERS.toLocaleString()}
+        </span>
+      </div>
     </div>
   );
 }
 
-export { CodeEditor, type CodeEditorProps };
+export { CodeEditor, MAX_CHARACTERS, type CodeEditorProps };

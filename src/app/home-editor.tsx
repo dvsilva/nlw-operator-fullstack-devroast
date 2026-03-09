@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CodeEditor } from "@/components/code-editor";
+import { CodeEditor, MAX_CHARACTERS } from "@/components/code-editor";
 import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
 import { useLanguageDetection } from "@/hooks/use-language-detection";
@@ -37,7 +37,11 @@ function HomeEditor() {
           </span>
         </div>
 
-        <Button variant="primary" size="lg" disabled={code.trim().length === 0}>
+        <Button
+          variant="primary"
+          size="lg"
+          disabled={code.trim().length === 0 || code.length > MAX_CHARACTERS}
+        >
           $ roast_my_code
         </Button>
       </div>
