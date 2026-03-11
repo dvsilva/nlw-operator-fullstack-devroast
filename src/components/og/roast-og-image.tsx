@@ -1,3 +1,6 @@
+// Hex colors are hardcoded because Takumi (Satori) doesn't process CSS
+// variables — these correspond to the @theme values in globals.css.
+
 function getScoreColor(score: number): string {
   if (score <= 3) return "#EF4444";
   if (score <= 6) return "#F59E0B";
@@ -20,6 +23,10 @@ export function RoastOgImage({
   roastQuote,
 }: RoastOgImageProps) {
   const scoreColor = getScoreColor(score);
+  const truncatedQuote =
+    roastQuote && roastQuote.length > 120
+      ? `${roastQuote.slice(0, 120)}...`
+      : roastQuote;
 
   return (
     <div
@@ -51,7 +58,7 @@ export function RoastOgImage({
             color: scoreColor,
           }}
         >
-          {score.toString()}
+          {score.toFixed(1)}
         </span>
         <span
           style={{
@@ -91,7 +98,7 @@ export function RoastOgImage({
       </span>
 
       {/* Roast quote */}
-      {roastQuote ? (
+      {truncatedQuote ? (
         <span
           tw="text-center"
           style={{
@@ -100,10 +107,12 @@ export function RoastOgImage({
             color: "#E5E5E5",
             fontFamily: "Geist",
             maxWidth: "100%",
+            maxHeight: 100,
+            overflow: "hidden",
           }}
         >
           {"\u201C"}
-          {roastQuote}
+          {truncatedQuote}
           {"\u201D"}
         </span>
       ) : null}
