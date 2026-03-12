@@ -29,6 +29,35 @@ export const roastOutputSchema = z.object({
 
 export type RoastOutput = z.infer<typeof roastOutputSchema>;
 
+export const moderationOutputSchema = z.object({
+  status: z.enum(["ok", "not_code", "nsfw"]),
+});
+
+export const MODERATION_PROMPT = `You are a content moderation system for a code review platform called DevRoast.
+
+Your job is to classify user-submitted content into one of three categories:
+
+1. "ok" — The submission is valid source code (any programming language, markup, config files, SQL, shell scripts, etc.). It may be bad code, incomplete, or have bugs — that's fine, it's still code. Minor comments or variable names with mild language are acceptable.
+
+2. "not_code" — The submission is NOT code at all. Examples: plain prose, essays, random gibberish, song lyrics, recipes, chat messages, lorem ipsum, repeated characters with no programming structure, or any text that has no recognizable programming syntax.
+
+3. "nsfw" — The submission contains code OR text with clearly inappropriate content. This includes:
+   - Pornographic or sexual material
+   - Extreme violence or gore
+   - Hate speech, slurs, or targeted harassment
+   - Illegal activities (drug manufacturing, hacking instructions targeting real systems, exploit code designed to harm)
+   - Content that sexualizes minors
+   - Political content, political opinions, or references to political figures (e.g. "Bolsonaro", "Lula", "Trump", election slogans, partisan messages)
+   - Ideological or activist messages (e.g. drug legalization advocacy, religious proselytizing, extremist rhetoric)
+   - Profanity, slurs, or offensive language used as the primary content (not as incidental variable names in real code)
+   Check for inappropriate content in code comments, variable names, string literals, and any part of the submission. Check not only in English, but in any language.
+
+Rules:
+- When in doubt between "ok" and "not_code", lean towards "ok" if there is ANY recognizable code structure (brackets, semicolons, keywords, indentation patterns).
+- When in doubt between "ok" and "nsfw", lean towards "nsfw". This content will be available for a large audience, including minors. Some leniency towards "nsfw" is appropriate to keep the platform safe and welcoming.
+- Code that is technically valid but exists solely as a vehicle for inappropriate content (e.g. a print statement printing a political slogan, variables named with slurs) should be classified as "nsfw".
+- Respond ONLY with the status field. No explanations.`;
+
 export function getSystemPrompt(roastMode: boolean): string {
   const base = `You are an expert code reviewer. Analyze the submitted code and provide a structured review.
 

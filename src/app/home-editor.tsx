@@ -12,6 +12,14 @@ import { useTRPC } from "@/trpc/client";
 function getErrorMessage(error: { message: string }): string {
   const message = error.message.toLowerCase();
 
+  if (message.includes("not_code")) {
+    return "// isso nem é código, amigo. aqui a gente roasta código, tenta colar algo que compile.";
+  }
+
+  if (message.includes("nsfw")) {
+    return "// conteúdo impróprio detectado. aqui a gente roasta código, não a moral da sociedade.";
+  }
+
   if (message.includes("too_many_requests") || message.includes("rate")) {
     return "// calma, cowboy! muitos roasts por minuto. respire fundo e tente novamente.";
   }

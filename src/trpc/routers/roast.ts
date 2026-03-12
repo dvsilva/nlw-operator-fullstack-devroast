@@ -5,7 +5,13 @@ import { revalidateTag } from "next/cache";
 import { headers } from "next/headers";
 import { z } from "zod";
 import { analysisItems, roasts } from "@/db/schema";
-import { getSystemPrompt, model, roastOutputSchema } from "@/lib/ai";
+import {
+  getSystemPrompt,
+  MODERATION_PROMPT,
+  model,
+  moderationOutputSchema,
+  roastOutputSchema,
+} from "@/lib/ai";
 import { LANGUAGES } from "@/lib/languages";
 import { rateLimiter } from "@/lib/rate-limit";
 import { baseProcedure, createTRPCRouter } from "../init";
@@ -79,6 +85,28 @@ export const roastRouter = createTRPCRouter({
               "Calma aí, cowboy! Você já fritou código demais. Volte em 1 minuto.",
           });
         }
+      }
+
+      const { output: moderation } = await generateText({
+        model,
+        maxOutputTokens: 50,
+        output: Output.object({ schema: moderationOutputSchema }),
+        system: MODERATION_PROMPT,
+        prompt: input.code,
+      });
+
+      if (moderation?.status === "not_code") {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "not_code",
+        });
+      }
+
+      if (moderation?.status === "nsfw") {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "nsfw",
+        });
       }
 
       const { output } = await generateText({
