@@ -1,0 +1,33 @@
+"use client";
+
+function GlobalError({
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
+  return (
+    <main className="flex flex-col items-center justify-center min-h-[60vh] gap-6 px-10">
+      <span className="font-mono text-6xl text-accent-red">{"x"}</span>
+
+      <div className="flex flex-col items-center gap-2">
+        <h1 className="font-mono text-xl font-bold text-text-primary">
+          fatal_error
+        </h1>
+        <p className="font-mono text-sm text-text-secondary text-center max-w-md">
+          {"// algo quebrou feio. nem o roast mode conseguiria zoar esse bug."}
+        </p>
+      </div>
+
+      <button
+        type="button"
+        onClick={reset}
+        className="font-mono text-sm text-accent-green hover:underline"
+      >
+        {"$ try_again"}
+      </button>
+    </main>
+  );
+}
+
+export default GlobalError;
