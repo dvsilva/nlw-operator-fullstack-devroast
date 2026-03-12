@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cache } from "react";
 import type { BundledLanguage } from "shiki";
 import {
   AnalysisCardDescription,
@@ -11,13 +12,15 @@ import { DiffLine } from "@/components/ui/diff-line";
 import { ScoreRing } from "@/components/ui/score-ring";
 import { caller } from "@/trpc/server";
 
+const getRoast = cache((id: string) => caller.roast.getById({ id }));
+
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const roast = await caller.roast.getById({ id });
+  const roast = await getRoast(id);
 
   const title = `${roast.score.toFixed(1)}/10 — ${roast.language} Roast — DevRoast`;
   const description =
@@ -90,7 +93,7 @@ export default async function RoastResultPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const roast = await caller.roast.getById({ id });
+  const roast = await getRoast(id);
 
   const badgeVariant = verdictToBadgeVariant[roast.verdict];
   const diffLines = roast.suggestedFix

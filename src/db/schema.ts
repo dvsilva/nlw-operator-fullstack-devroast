@@ -38,13 +38,17 @@ export const roasts = pgTable(
   (table) => [index("roasts_score_idx").on(table.score)],
 );
 
-export const analysisItems = pgTable("analysis_items", {
-  id: uuid().defaultRandom().primaryKey(),
-  roastId: uuid()
-    .references(() => roasts.id, { onDelete: "cascade" })
-    .notNull(),
-  severity: severityEnum().notNull(),
-  title: varchar({ length: 200 }).notNull(),
-  description: text().notNull(),
-  order: integer().notNull(),
-});
+export const analysisItems = pgTable(
+  "analysis_items",
+  {
+    id: uuid().defaultRandom().primaryKey(),
+    roastId: uuid()
+      .references(() => roasts.id, { onDelete: "cascade" })
+      .notNull(),
+    severity: severityEnum().notNull(),
+    title: varchar({ length: 200 }).notNull(),
+    description: text().notNull(),
+    order: integer().notNull(),
+  },
+  (table) => [index("analysis_items_roast_id_idx").on(table.roastId)],
+);

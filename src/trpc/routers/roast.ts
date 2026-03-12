@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { z } from "zod";
 import { analysisItems, roasts } from "@/db/schema";
 import { getSystemPrompt, model, roastOutputSchema } from "@/lib/ai";
+import { LANGUAGES } from "@/lib/languages";
 import { rateLimiter } from "@/lib/rate-limit";
 import { baseProcedure, createTRPCRouter } from "../init";
 
@@ -54,7 +55,9 @@ export const roastRouter = createTRPCRouter({
     .input(
       z.object({
         code: z.string().min(1).max(2000),
-        language: z.string(),
+        language: z
+          .string()
+          .refine((key) => key in LANGUAGES, "Invalid language"),
         roastMode: z.boolean(),
       }),
     )
@@ -79,6 +82,7 @@ export const roastRouter = createTRPCRouter({
 
       const { output } = await generateText({
         model,
+        maxOutputTokens: 2000,
         output: Output.object({ schema: roastOutputSchema }),
         system: getSystemPrompt(input.roastMode),
         prompt: `Language: ${input.language}\n\nCode:\n${input.code}`,

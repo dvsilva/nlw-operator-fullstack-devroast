@@ -1,0 +1,1 @@
+CREATE INDEX "analysis_items_roast_id_idx" ON "analysis_items" USING btree ("roast_id");

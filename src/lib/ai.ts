@@ -1,6 +1,10 @@
 import { openai } from "@ai-sdk/openai";
 import { z } from "zod";
 
+if (!process.env.OPENAI_API_KEY) {
+  throw new Error("OPENAI_API_KEY is not set");
+}
+
 export const model = openai("gpt-4o-mini");
 
 export const roastOutputSchema = z.object({
@@ -12,15 +16,15 @@ export const roastOutputSchema = z.object({
     "solid_work",
     "exceptional",
   ]),
-  roastQuote: z.string(),
+  roastQuote: z.string().max(500),
   analysisItems: z.array(
     z.object({
       severity: z.enum(["critical", "warning", "good"]),
-      title: z.string(),
-      description: z.string(),
+      title: z.string().max(200),
+      description: z.string().max(2000),
     }),
   ),
-  suggestedFix: z.string(),
+  suggestedFix: z.string().max(5000),
 });
 
 export type RoastOutput = z.infer<typeof roastOutputSchema>;
