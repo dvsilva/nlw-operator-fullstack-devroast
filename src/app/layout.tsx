@@ -23,7 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={jetbrainsMono.variable}>
       <body className="font-sans antialiased">
-        <Suspense>
+        <Suspense fallback={<div className="min-h-screen bg-bg-page" />}>
           <TRPCReactProvider>
             <Navbar />
             {children}
